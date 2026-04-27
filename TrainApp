@@ -36,5 +36,5 @@ public class TrainApp {
         // Final state
         System.out.println("Final bogie list:");
         System.out.println(passengerBogies);
-    }   git checkout dev
+    }
 }
