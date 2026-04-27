@@ -1,13 +1,59 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class TrainApp {
 
     public static void main(String[] args) {
+
         System.out.println("=== Train Consist Management App ===");
 
-        List<String> bogies = new ArrayList<>();
+        // Case 1: Empty bogie list
+        String[] bogieIds = {};   // try with empty first
 
-        System.out.println("Initial bogie count: " + bogies.size());
+        String searchKey = "BG101";
+
+        try {
+            boolean result = searchBogie(bogieIds, searchKey);
+
+            if (result) {
+                System.out.println("Bogie ID found.");
+            } else {
+                System.out.println("Bogie ID not found.");
+            }
+
+        } catch (IllegalStateException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        // Case 2: Non-empty array (program continues)
+        String[] bogieIds2 = {"BG101", "BG205", "BG309"};
+
+        try {
+            boolean result = searchBogie(bogieIds2, "BG205");
+
+            if (result) {
+                System.out.println("Bogie ID found.");
+            } else {
+                System.out.println("Bogie ID not found.");
+            }
+
+        } catch (IllegalStateException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Search method with validation
+    public static boolean searchBogie(String[] bogieIds, String key) {
+
+        // Fail-fast validation
+        if (bogieIds == null || bogieIds.length == 0) {
+            throw new IllegalStateException("Cannot perform search: No bogies available.");
+        }
+
+        // Linear search logic
+        for (String id : bogieIds) {
+            if (id.equals(key)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
