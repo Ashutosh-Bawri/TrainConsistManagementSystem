@@ -1,59 +1,214 @@
+import java.util.*;
+import java.util.regex.*;
+import java.util.stream.*;
+
+// Custom Exception (UC14)
+class InvalidCapacityException extends Exception {
+    public InvalidCapacityException(String msg) {
+        super(msg);
+    }
+}
+
+// Runtime Exception (UC15)
+class CargoSafetyException extends RuntimeException {
+    public CargoSafetyException(String msg) {
+        super(msg);
+    }
+}
+
+// Passenger Bogie (UC7 onwards)
+class Bogie {
+    String name;
+    int capacity;
+
+    public Bogie(String name, int capacity) throws InvalidCapacityException {
+        if (capacity <= 0) {
+            throw new InvalidCapacityException("Capacity must be greater than zero");
+        }
+        this.name = name;
+        this.capacity = capacity;
+    }
+
+    public String toString() {
+        return name + "(" + capacity + ")";
+    }
+}
+
+// Goods Bogie (UC12, UC15)
+class GoodsBogie {
+    String type;
+    String cargo;
+
+    public GoodsBogie(String type) {
+        this.type = type;
+    }
+
+    public void assignCargo(String cargo) {
+        try {
+            if (type.equals("Rectangular") && cargo.equals("Petroleum")) {
+                throw new CargoSafetyException("Unsafe cargo assignment!");
+            }
+            this.cargo = cargo;
+            System.out.println(type + " -> " + cargo);
+        } catch (CargoSafetyException e) {
+            System.out.println("Error: " + e.getMessage());
+        } finally {
+            System.out.println("Assignment attempt done\n");
+        }
+    }
+}
+
 public class TrainApp {
 
     public static void main(String[] args) {
 
         System.out.println("=== Train Consist Management App ===");
 
-        // Case 1: Empty bogie list
-        String[] bogieIds = {};   // try with empty first
+        // UC1: Initialization
+        List<String> train = new ArrayList<>();
+        System.out.println("Initial bogie count: " + train.size());
 
-        String searchKey = "BG101";
+        // UC2: ArrayList operations
+        train.add("Sleeper");
+        train.add("AC Chair");
+        train.add("First Class");
+        train.remove("AC Chair");
+        System.out.println("Bogies: " + train);
+
+        // UC3: HashSet (unique IDs)
+        Set<String> ids = new HashSet<>();
+        ids.add("BG101");
+        ids.add("BG101");
+        System.out.println("Unique IDs: " + ids);
+
+        // UC4: LinkedList (order)
+        LinkedList<String> list = new LinkedList<>();
+        list.add("Engine");
+        list.add("Sleeper");
+        list.add("Cargo");
+        list.addFirst("Guard");
+        System.out.println("Train order: " + list);
+
+        // UC5: LinkedHashSet
+        Set<String> ordered = new LinkedHashSet<>();
+        ordered.add("Engine");
+        ordered.add("Sleeper");
+        ordered.add("Sleeper");
+        System.out.println("Ordered unique: " + ordered);
+
+        // UC6: HashMap
+        Map<String, Integer> map = new HashMap<>();
+        map.put("Sleeper", 72);
+        map.put("AC Chair", 54);
+        map.forEach((k,v)->System.out.println(k+" -> "+v));
 
         try {
-            boolean result = searchBogie(bogieIds, searchKey);
+            // UC7: Comparator sorting
+            List<Bogie> bogies = new ArrayList<>();
+            bogies.add(new Bogie("Sleeper", 72));
+            bogies.add(new Bogie("AC", 54));
+            bogies.add(new Bogie("First", 24));
 
-            if (result) {
-                System.out.println("Bogie ID found.");
-            } else {
-                System.out.println("Bogie ID not found.");
-            }
+            bogies.sort(Comparator.comparingInt(b -> b.capacity));
+            System.out.println("Sorted bogies: " + bogies);
 
-        } catch (IllegalStateException e) {
-            System.out.println("Error: " + e.getMessage());
+            // UC8: Stream filter
+            List<Bogie> filtered = bogies.stream()
+                    .filter(b -> b.capacity > 50)
+                    .collect(Collectors.toList());
+            System.out.println("Filtered: " + filtered);
+
+            // UC9: Grouping
+            Map<String, List<Bogie>> grouped =
+                    bogies.stream().collect(Collectors.groupingBy(b -> b.name));
+            System.out.println("Grouped: " + grouped);
+
+            // UC10: Reduce
+            int total = bogies.stream()
+                    .map(b -> b.capacity)
+                    .reduce(0, Integer::sum);
+            System.out.println("Total capacity: " + total);
+
+        } catch (InvalidCapacityException e) {
+            System.out.println(e.getMessage());
         }
 
-        // Case 2: Non-empty array (program continues)
-        String[] bogieIds2 = {"BG101", "BG205", "BG309"};
+        // UC11: Regex validation
+        System.out.println("Regex Valid: " + Pattern.matches("TRN-\\d{4}", "TRN-1234"));
 
+        // UC12: Safety validation
+        List<GoodsBogie> goods = Arrays.asList(
+                new GoodsBogie("Cylindrical"),
+                new GoodsBogie("Open")
+        );
+        boolean safe = goods.stream().allMatch(b ->
+                !b.type.equals("Cylindrical") || "Petroleum".equals("Petroleum"));
+        System.out.println("Safety: " + safe);
+
+        // UC13: Performance
+        long start = System.nanoTime();
+        for (int i = 0; i < 1000; i++);
+        long end = System.nanoTime();
+        System.out.println("Time: " + (end - start));
+
+        // UC15: try-catch-finally
+        GoodsBogie g = new GoodsBogie("Rectangular");
+        g.assignCargo("Petroleum");
+
+        // UC16: Bubble Sort
+        int[] arr = {72, 56, 24};
+        for (int i = 0; i < arr.length-1; i++)
+            for (int j = 0; j < arr.length-i-1; j++)
+                if (arr[j] > arr[j+1]) {
+                    int t = arr[j]; arr[j]=arr[j+1]; arr[j+1]=t;
+                }
+        System.out.println("Bubble sorted: " + Arrays.toString(arr));
+
+        // UC17: Arrays.sort
+        String[] names = {"Sleeper","AC","First"};
+        Arrays.sort(names);
+        System.out.println("Sorted names: " + Arrays.toString(names));
+
+        // UC18: Linear search
+        String[] idsArr = {"BG101","BG205","BG309"};
+        System.out.println("Linear found: " + linearSearch(idsArr,"BG205"));
+
+        // UC19: Binary search
+        Arrays.sort(idsArr);
+        System.out.println("Binary found: " + binarySearch(idsArr,"BG205"));
+
+        // UC20: Fail-fast
         try {
-            boolean result = searchBogie(bogieIds2, "BG205");
-
-            if (result) {
-                System.out.println("Bogie ID found.");
-            } else {
-                System.out.println("Bogie ID not found.");
-            }
-
-        } catch (IllegalStateException e) {
-            System.out.println("Error: " + e.getMessage());
+            searchFailFast(new String[]{}, "BG101");
+        } catch (Exception e) {
+            System.out.println("Fail-fast: " + e.getMessage());
         }
     }
 
-    // Search method with validation
-    public static boolean searchBogie(String[] bogieIds, String key) {
-
-        // Fail-fast validation
-        if (bogieIds == null || bogieIds.length == 0) {
-            throw new IllegalStateException("Cannot perform search: No bogies available.");
-        }
-
-        // Linear search logic
-        for (String id : bogieIds) {
-            if (id.equals(key)) {
-                return true;
-            }
-        }
-
+    // UC18
+    static boolean linearSearch(String[] arr, String key) {
+        for (String s : arr)
+            if (s.equals(key)) return true;
         return false;
+    }
+
+    // UC19
+    static boolean binarySearch(String[] arr, String key) {
+        int l=0,h=arr.length-1;
+        while(l<=h){
+            int m=(l+h)/2;
+            int c=key.compareTo(arr[m]);
+            if(c==0)return true;
+            else if(c<0)h=m-1;
+            else l=m+1;
+        }
+        return false;
+    }
+
+    // UC20
+    static boolean searchFailFast(String[] arr, String key) {
+        if(arr.length==0)
+            throw new IllegalStateException("No bogies available");
+        return linearSearch(arr,key);
     }
 }
