@@ -1,28 +1,47 @@
+import java.util.Arrays;
+
 public class TrainApp {
 
     public static void main(String[] args) {
 
         System.out.println("=== Train Consist Management App ===");
 
-        // Array of bogie IDs
-        String[] bogieIds = {"BG101", "BG205", "BG309", "BG412", "BG550"};
+        // Unsorted array of bogie IDs
+        String[] bogieIds = {"BG309", "BG101", "BG550", "BG205", "BG412"};
+
+        // Sort first (important precondition)
+        Arrays.sort(bogieIds);
+
+        System.out.println("Sorted Bogie IDs:");
+        System.out.println(Arrays.toString(bogieIds));
 
         // Search key
-        String searchKey = "BG309";
+        String key = "BG309";
 
+        // Binary Search
+        int low = 0;
+        int high = bogieIds.length - 1;
         boolean found = false;
 
-        // Linear Search
-        for (int i = 0; i < bogieIds.length; i++) {
+        while (low <= high) {
 
-            if (bogieIds[i].equals(searchKey)) {
+            int mid = (low + high) / 2;
+
+            int result = key.compareTo(bogieIds[mid]);
+
+            if (result == 0) {
+                System.out.println("Bogie ID found at index: " + mid);
                 found = true;
-                System.out.println("Bogie ID found at position: " + i);
-                break; // stop when found
+                break;
+
+            } else if (result < 0) {
+                high = mid - 1; // search left
+
+            } else {
+                low = mid + 1;  // search right
             }
         }
 
-        // If not found
         if (!found) {
             System.out.println("Bogie ID not found.");
         }
